@@ -19,7 +19,7 @@ export const outputLangId = "vscode-objectscript-output";
 export const lsExtensionId = "intersystems.language-server";
 
 // keyed by edited classname = map of method names=origin class
-export let codeLensMap = new Map<string, Map<string,{uri:vscode.Uri, origin:string}>>();
+export let codeLensMap = new Map<string, Map<string,{uri:vscode.Uri, origin:string, overrideCount:number}>>();
 
 
 export async function activate(context: vscode.ExtensionContext) {
