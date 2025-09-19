@@ -90,7 +90,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         console.log("origins loaded");
         for (let memobj of respdata1.data.result.content) {
           if (!toriginsMap.has(memobj.Name)) {
-            const uri = objectScriptApi.getUriForDocument(`${memobj.Origin}.cls`);
+            const uri = document.uri; //objectScriptApi.getUriForDocument(`${memobj.Origin}.cls`);
             toriginsMap.set(memobj.Name,{uri:uri,origin:memobj.Origin,overrideCount:0});
           }
         }        
@@ -102,8 +102,11 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
       var data2: QueryData = {
         query:  `
           select ns as NameSpace,%SQLUPPER(ik1) as ClassName, %SQLUPPER(ik2) as MemberName
-          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2) ) as xrefCount
-          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2) and %SQLUPPER(x2.calledbycommand)=%SQLUPPER('_Override')) as overriddenCount
+          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) 
+                                                        and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2) ) as xrefCount
+          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) 
+                                                         and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2)
+                                                         and %SQLUPPER(x2.calledbycommand)=%SQLUPPER('_Override')) as overriddenCount
           from (
             SELECT xd.NameSpace as ns,xd.ItemType as ityp,xd.ItemKey1 as ik1,xd.ItemKey2 as ik2 FROM pxw_xref."Data" as xd
             union
@@ -122,12 +125,15 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         // 
         console.log("overrides loaded");
         for (let memobj of respdata2.data.result.content) {
+          /*if (memobj.MemberName===' LOAD') {
+            console.log(memobj);
+          }*/
           if (!toriginsMap.has(memobj.MemberName)) {
             const uri = objectScriptApi.getUriForDocument(`${memobj.ClassName}.cls`);
             toriginsMap.set(memobj.MemberName,{uri:uri,origin:'',overrideCount:memobj.overriddenCount});
           } else {
             const origindet=toriginsMap.get(memobj.MemberName);
-            if (origindet) {origindet.overrideCount=memobj.overrideCount;}
+            if (origindet) {origindet.overrideCount=memobj.overriddenCount;}
           }
         }        
       } else {
@@ -168,7 +174,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                   result.push(this.addOverride(symbolLine,origindet.origin,origindet.uri,symbol.name));
                 }
                 if (origindet.overrideCount!==0) {
-                  result.push(this.addOverridden(symbolLine,origindet.origin,origindet.uri,origindet.overrideCount));
+                  result.push(this.addOverridden(document,symbolLine,origindet.origin,origindet.uri,origindet.overrideCount));
                 }
               }
             }
@@ -183,15 +189,15 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
     return new vscode.CodeLens(this.range(line), {
       title: "Override",
       command: "vscode.open",
-      arguments: [uri],
+      arguments: [uri]
     });
   }
 
-  private addOverridden(line: number,  origin: string,uri:vscode.Uri, overCount: number) {
+  private addOverridden(document:vscode.TextDocument,line: number,  origin: string,uri:vscode.Uri, overCount: number) {
     return new vscode.CodeLens(this.range(line), {
       title: "Overridden "+(overCount)+"",
-      command: "vscode.open",
-      arguments: [uri],
+      command: "vscode.executeReferenceProvider",
+      arguments: [uri,new vscode.Position(line,1)]
     });
   }
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Cache } from './vscodeCache';
 import { ObjectScriptCodeLensProvider } from "./codeLensProvider";
+import { XrefProvider } from './referenceProvider';
 /**
  * Cache for cookies from REST requests to InterSystems servers.
  */
@@ -35,6 +36,13 @@ export async function activate(context: vscode.ExtensionContext) {
       		{ language: 'objectscript-class' },
       		new ObjectScriptCodeLensProvider()
     	)
+	);
+
+	context.subscriptions.push(
+		vscode.languages.registerReferenceProvider(
+			{ language: 'objectscript-class' },
+			new XrefProvider()
+		),
 	);
 }
 
