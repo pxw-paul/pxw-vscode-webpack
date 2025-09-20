@@ -1,7 +1,7 @@
-import { authentication, Uri } from "vscode";
+import * as vscode from "vscode";
 import { objectScriptApi } from "./extension";
 
-export async function serverForUri(uri: Uri): Promise<any> {
+export async function serverForUri(uri: vscode.Uri): Promise<any> {
     let serverSpec = objectScriptApi.serverForUri(uri);
     if (
         // Server was resolved
@@ -18,9 +18,9 @@ export async function serverForUri(uri: Uri): Promise<any> {
         const AUTHENTICATION_PROVIDER = "intersystems-server-credentials";
         const scopes = [serverSpec.serverName, serverSpec.username || ""];
         try {
-            let session = await authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { silent: true });
+            let session = await vscode.authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { silent: true });
             if (!session) {
-                session = await authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { createIfNone: true });
+                session = await vscode.authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { createIfNone: true });
             }
             if (session) {
                 serverSpec.username = session.scopes[1];
@@ -77,4 +77,34 @@ export function quoteUDLIdentifier(identifier: string, direction: 0 | 1): string
 		}
 	}
 	return result;
+}
+
+export function getClassNameFromDocument(document: vscode.TextDocument): string {
+	let originSelectionRange = new vscode.Range(0, 0, 1, 0);
+	let className = "";
+
+	let inComment = false;
+	for (let i = 0; i < document.lineCount; i++) {
+		const line = document.lineAt(i);
+
+		// Skip initial comment block(s)
+		if (line.text.match(/\/\*/)) {
+			inComment = true;
+		}
+		if (inComment) {
+			if (line.text.match(/\*\//)) {
+				inComment = false;
+			}
+			continue;
+		}
+
+		// Discover class name
+		const classPat = line.text.match(/^(Class) (%?\b\w+\b(?:\.\b\w+\b)+)/i);
+		if (classPat) {
+			className = classPat[2];
+			originSelectionRange = new vscode.Range(i, 0, i, line.text.indexOf(className) + className.length);
+			break;
+		}
+	}
+	return className;
 }

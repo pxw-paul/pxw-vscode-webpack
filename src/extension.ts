@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { Cache } from './vscodeCache';
 import { ObjectScriptCodeLensProvider } from "./codeLensProvider";
 import { XrefProvider } from './referenceProvider';
+import { codeLensObject } from './types';
 /**
  * Cache for cookies from REST requests to InterSystems servers.
  */
@@ -19,9 +20,9 @@ export const cspLangId = "objectscript-csp";
 export const outputLangId = "vscode-objectscript-output";
 export const lsExtensionId = "intersystems.language-server";
 
-// keyed by edited classname = map of method names=origin class
-export let codeLensMap = new Map<string, Map<string,{uri:vscode.Uri, origin:string, overrideCount:number}>>();
 
+// keyed by edited classname = map of method names=origin class
+export let codeLensMap = new Map<string, Map<string,codeLensObject>>(); 
 
 export async function activate(context: vscode.ExtensionContext) {
 
