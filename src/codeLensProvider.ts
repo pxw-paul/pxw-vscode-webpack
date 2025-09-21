@@ -85,7 +85,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         console.log("origins loaded");
         for (let memobj of respdata1.data.result.content) {
           if (!toriginsMap.has(memobj.Name)) {
-            const uri = document.uri; //objectScriptApi.getUriForDocument(`${memobj.Origin}.cls`);
+            const uri = objectScriptApi.getUriForDocument(`${memobj.Origin}.cls`);
             var clo: codeLensObject = {
               uri: uri,
               origin: memobj.Origin,
@@ -195,9 +195,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                 result.push(
                   this.addOverride(
                     symbolLine,
-                    origindet.origin,
                     origindet.uri,
-                    symbol.name
                   )
                 );
               }
@@ -229,9 +227,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
   }
   private addOverride(
     line: number,
-    origin: string,
     uri: vscode.Uri,
-    label: string
   ) {
     return new vscode.CodeLens(this.range(line), {
       title: "Override",
