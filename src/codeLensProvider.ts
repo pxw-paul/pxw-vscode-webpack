@@ -22,11 +22,15 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
   ): Promise<vscode.CodeLens[]> {
     const result: vscode.CodeLens[] = [];
 
-    if (![clsLangId, macLangId, intLangId].includes(document.languageId)) {
+    /*if (![clsLangId, macLangId, intLangId].includes(document.languageId)) {
       console.log("Document language not valid " + document.languageId);
       return result;
     }
-
+    */
+    if (![clsLangId].includes(document.languageId)) {
+      console.log("Document language not valid " + document.languageId);
+      return result;
+    }
     const className = getClassNameFromDocument(document);
 
     if (className === "") {
@@ -151,7 +155,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
       } else {
         console.log("overrides failed to load");
       }
-
+      /// Always save the new map, even if the load failed that ensures we don't try again.
       codeLensMap.set(upperClassName, toriginsMap);
     }
     const originsMap = codeLensMap.get(upperClassName);

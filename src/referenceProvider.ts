@@ -9,7 +9,7 @@ import {
 } from "./extension";
 import { QueryData } from "./types";
 import { makeRESTRequest } from "./makeRESTRequest";
-import { getClassNameFromDocument, quoteUDLIdentifier, serverForUri } from "./functions";
+import { getClassNameFromDocument, quoteUDLIdentifier, serverForUri, serverForXref } from "./functions";
 
 export class XrefProvider implements vscode.ReferenceProvider {
   async provideReferences(
@@ -70,7 +70,7 @@ export class XrefProvider implements vscode.ReferenceProvider {
           console.log("xref for " + className + ":" + memberName);
         }
 
-        const server = await serverForUri(document.uri);
+        const server = await serverForXref();
 
         // Query the server to get all the members that have been overridden by some subclass
         // this query is not quite right, its not the best way to work out the pxw namespace from the actual namespace

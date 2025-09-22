@@ -1,8 +1,58 @@
 import * as vscode from "vscode";
 import { objectScriptApi } from "./extension";
+import { ServerSpec } from "./makeRESTRequest";
 
 export async function serverForUri(uri: vscode.Uri): Promise<any> {
     let serverSpec = objectScriptApi.serverForUri(uri);
+    if (
+        // Server was resolved
+        serverSpec.host !== "" &&
+        // Connection isn't unauthenticated (i.e. UnknownUser)
+        serverSpec.username !== undefined &&
+        serverSpec.username !== "" &&
+        serverSpec.username.toLowerCase() !== "unknownuser" &&
+        // A password is missing
+        typeof serverSpec.password === "undefined"
+    ) {
+        // The main extension didn't provide a password, so we must 
+        // get it from the server manager's authentication provider.
+        const AUTHENTICATION_PROVIDER = "intersystems-server-credentials";
+        const scopes = [serverSpec.serverName, serverSpec.username || ""];
+        try {
+            let session = await vscode.authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { silent: true });
+            if (!session) {
+                session = await vscode.authentication.getSession(AUTHENTICATION_PROVIDER, scopes, { createIfNone: true });
+            }
+            if (session) {
+                serverSpec.username = session.scopes[1];
+                serverSpec.password = session.accessToken;
+            }
+        } catch (error) {
+            // The user did not consent to sharing authentication information
+            if (error instanceof Error) {
+                console.log(`${AUTHENTICATION_PROVIDER}: ${error.message}`);
+            }
+        }
+    }
+    return serverSpec;
+
+}
+	
+
+export async function serverForXref(): Promise<any> {
+	const config= vscode.workspace.getConfiguration("pxw.xref.connection");
+    let serverSpec : ServerSpec = {
+		serverName: config.server,
+		scheme: config.scheme,
+		host: config.server,
+		port: config.port,
+		pathPrefix: "",
+		apiVersion: 1,
+		namespace: config.namespace,
+		username: config.username,
+		password: config.password,
+		active: true
+	};
     if (
         // Server was resolved
         serverSpec.host !== "" &&

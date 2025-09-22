@@ -3,7 +3,7 @@
   "displayName": "pxw-vscode-webpack",
   "description": "Second go",
   "publisher": "pxw-paul",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "engines": {
     "vscode": "^1.104.0"
@@ -20,7 +20,47 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": []
+    "commands": [],
+    "configuration": [
+      {
+        "id":"PXWXrefTools",
+        "title": "PXW Xref tools",
+        "type":"object",
+        "properties":{
+          "pxw.xref.connection": {
+            "type":"object",
+            "description": "The connection for the Xref tools",
+            "properties": {
+              "scheme": {
+                "type":"string",
+                "description": "https/http"
+              },
+              "server": {
+                "type":"string",
+                "description": "Server"
+              },
+              "port": {
+                "type":"string",
+                "description": "Port"
+              },
+              "namespace": {
+                "type":"string",
+                "description": "Namespace"
+              },
+              "username":{
+                "type":"string",
+                "description": "Username"
+              },
+              "password": {
+                "type":"string",
+                "description": "Password"
+              }
+            }
+          }
+          
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
