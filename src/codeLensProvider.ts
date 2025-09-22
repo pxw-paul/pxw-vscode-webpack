@@ -99,24 +99,14 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         console.log("origins failed to load");
       }
       // Query the server to get all the members that have been overridden by some subclass
-      // this query is not quite right, its not the best way to work out the pxw namespace from the actual namespace
       var data2: QueryData = {
         query: `
-          select ns as NameSpace,%SQLUPPER(ik1) as ClassName, %SQLUPPER(ik2) as MemberName
-          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) 
-                                                        and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2) ) as xrefCount
-          ,(select count(*) from PXW_Xref."Data" as x2 where %SQLUPPER(x2.Namespace)=%SQLUPPER(x1.ns) and %SQLUPPER(x2.itemtype)=%SQLUPPER(x1.ityp) 
-                                                         and %SQLUPPER(x2.itemkey1)=%SQLUPPER(x1.ik1) and %SQLUPPER(x2.itemkey2)=%SQLUPPER(x1.ik2)
-                                                         and %SQLUPPER(x2.calledbycommand)=%SQLUPPER('_Override')) as overriddenCount
-          from (
-            SELECT xd.NameSpace as ns,xd.ItemType as ityp,xd.ItemKey1 as ik1,xd.ItemKey2 as ik2 FROM pxw_xref."Data" as xd
-            union
-            SELECT xd.NameSpace,xd.CalledByType ,xd.CalledByKey1 ,xd.CalledByKey2 FROM pxw_xref."Data" as xd
-          ) as x1
-          where ns=(
-                      	select top 1 ID from PXW_DEV_Dictionary.AtelierSettings as ns1 where ns1.Namespace=?
-	                  ) and ityp='CLS' and ik1=?
-
+          SELECT %SQLUPPER(ItemKey2) as MemberName,case when CalledByCommand='_Override' then 'Overridden' else 'Xref' end as XrefType ,count(*) as xCount
+            FROM pxw_xref."Data" AS xd
+           WHERE xd.ItemType ='CLS' 
+            AND  xd.NameSpace=%SQLUPPER(PXW_DEV_Dictionary.ClassDefinitionObject_FindNamespaceFromIRISNameSpace(?))
+            AND  xd.ItemKey1 =?
+          GROUP BY ItemKey2,xreftype
         `,
         parameters: [server.namespace, className],
       };
@@ -141,18 +131,20 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
           }*/
           if (!toriginsMap.has(memobj.MemberName)) {
             const uri = document.uri; //objectScriptApi.getUriForDocument(`${memobj.ClassName}.cls`);
-            const clo: codeLensObject = {
+            const codeLensObject: codeLensObject = {
               uri: uri,
               origin: "",
-              overrideCount: memobj.overriddenCount,
-              xrefCount: memobj.xrefCount,
+              overrideCount: 0,
+              xrefCount: 0
             };
-            toriginsMap.set(memobj.MemberName, clo);
-          } else {
-            const clo = toriginsMap.get(memobj.MemberName);
-            if (clo) {
-              clo.overrideCount = memobj.overriddenCount;
-              clo.xrefCount = memobj.xrefCount;
+            toriginsMap.set(memobj.MemberName, codeLensObject);
+          } 
+          const codeLensObject = toriginsMap.get(memobj.MemberName);
+          if (codeLensObject) {
+            if (memobj.XrefType==='Overridden') {
+              codeLensObject.overrideCount = memobj.xCount;
+            } else {
+              codeLensObject.xrefCount = memobj.xCount;
             }
           }
         }
