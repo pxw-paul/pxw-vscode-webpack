@@ -100,9 +100,6 @@ export class XrefProvider implements vscode.ReferenceProvider {
           //
           console.log("overrides loaded");
           for (let memobj of respdata2.data.result.content) {
-            /*if (memobj.MemberName===' LOAD') {
-                        console.log(memobj);
-                        }*/
             const uri = objectScriptApi.getUriForDocument(
               `${memobj.CalledByKey1}.cls`
             );

@@ -56,7 +56,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
       // Query the server to get all the member that are overriding a superclass version of the member
       var data1: QueryData = {
         query: `
-            select %SQLUPPER(parent) as Parent, %SQLUPPER(name) as Name, Description, Origin, MemberType
+            select %SQLUPPER(parent) as Parent, %SQLUPPER(name) as Name, Description, Origin, MemberType,Name as MemberName
             from (          SELECT Parent,Name, Description, Origin, 'method' AS MemberType FROM %Dictionary.CompiledMethod WHERE Stub IS NULL 
                   UNION ALL SELECT Parent,Name, Description, Origin, 'query' AS MemberType FROM %Dictionary.CompiledQuery 
                   UNION ALL SELECT Parent,Name, Description, Origin, 'projection' AS MemberType FROM %Dictionary.CompiledProjection 
@@ -92,7 +92,8 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
             const uri = objectScriptApi.getUriForDocument(`${memobj.Origin}.cls`);
             var clo: codeLensObject = {
               uri: uri,
-              origin: memobj.Origin,
+              originClassName: memobj.Origin,
+              originMethodName: memobj.MemberName,
               overrideCount: 0,
               xrefCount: 0,
             };
@@ -137,7 +138,8 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
             const uri = document.uri; //objectScriptApi.getUriForDocument(`${memobj.ClassName}.cls`);
             const codeLensObject: codeLensObject = {
               uri: uri,
-              origin: "",
+              originClassName: "",
+              originMethodName:"",
               overrideCount: 0,
               xrefCount: 0
             };
@@ -187,11 +189,13 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
           if (originsMap.has(upperMember)) {
             const origindet = originsMap.get(upperMember);
             if (origindet) {
-              if (origindet.origin !== "") {
+              if (origindet.originClassName !== "") {
                 result.push(
                   this.addOverride(
                     symbolLine,
                     origindet.uri,
+                    origindet.originClassName,
+                    origindet.originMethodName                    
                   )
                 );
               }
@@ -224,11 +228,13 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
   private addOverride(
     line: number,
     uri: vscode.Uri,
+    classname: string,
+    membername: string,
   ) {
     return new vscode.CodeLens(this.range(line), {
       title: "Override",
-      command: "vscode.open",
-      arguments: [uri],
+      command: "pxw-vscode-webpack.openoverride",
+      arguments: [classname,membername],
     });
   }
 
@@ -251,6 +257,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
       arguments: [uri, new vscode.Position(line, 1)],
     });
   }
+
 
   private range(line: number): vscode.Range {
     return new vscode.Range(line, 0, line, 80);

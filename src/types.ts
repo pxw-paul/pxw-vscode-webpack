@@ -10,7 +10,8 @@ export type QueryData = {
 
 export type codeLensObject = {
 	uri:vscode.Uri, 
-	origin:string, 
+	originClassName:string, 
+	originMethodName:string,
 	overrideCount:number,
 	xrefCount:number,
 };
