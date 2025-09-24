@@ -12,6 +12,7 @@ import {
   getClassNameFromDocument,
   quoteUDLIdentifier,
   serverForUri,
+  serverForXref,
 } from "./functions";
 import { objectScriptApi } from "./extension";
 
@@ -71,7 +72,8 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                 `,
         parameters: new Array(1).fill(className),
       };
-      const server = await serverForUri(document.uri);
+      //const server = await serverForUri(document.uri);
+      const server= await serverForXref();
       const respdata1 = await makeRESTRequest(
         "POST",
         1,

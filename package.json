@@ -35,9 +35,9 @@
                 "type":"string",
                 "description": "https/http"
               },
-              "server": {
+              "host": {
                 "type":"string",
-                "description": "Server"
+                "description": "Host"
               },
               "port": {
                 "type":"string",

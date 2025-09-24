@@ -42,9 +42,9 @@ export async function serverForUri(uri: vscode.Uri): Promise<any> {
 export async function serverForXref(): Promise<any> {
 	const config= vscode.workspace.getConfiguration("pxw.xref.connection");
     let serverSpec : ServerSpec = {
-		serverName: config.server,
+		serverName: config.host,
 		scheme: config.scheme,
-		host: config.server,
+		host: config.host,
 		port: config.port,
 		pathPrefix: "",
 		apiVersion: 1,
