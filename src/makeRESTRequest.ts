@@ -69,7 +69,7 @@ export async function makeRESTRequest(method: "GET"|"POST", api: number, path: s
 
 	// Build the URL
 	let url = encodeURI(`${server.scheme}://${server.host}:${server.port}${server.pathPrefix}/api/atelier/v${server.apiVersion}/${server.namespace}${path}`);
-
+	console.log(url);
 	// Create the HTTPS agent
 	const httpsAgent = new https.Agent({ rejectUnauthorized: workspace.getConfiguration("http").get("proxyStrictSSL") });
 

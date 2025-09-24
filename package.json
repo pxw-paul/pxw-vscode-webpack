@@ -40,7 +40,7 @@
                 "description": "Host"
               },
               "port": {
-                "type":"string",
+                "type":"integer",
                 "description": "Port"
               },
               "namespace": {

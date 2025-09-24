@@ -70,14 +70,38 @@ async function myOpen(classname: string ,membername:string) {
             const targetRange = symbolInfo?.range ?? range;
 			vscode.window.showTextDocument(uri).then(editor => {
 				// Line added - by having a selection at the same position twice, the cursor jumps there
-				editor.selections = [new vscode.Selection(targetRange.start,targetRange.end)]; 
+				editor.selections = [new vscode.Selection(targetSelectionRange.start,targetSelectionRange.end)]; 
 				// And the visible range jumps there too
 				//var range = new vscode.Range(pos1, pos1);
 				editor.revealRange(targetRange);
 			});
 		}
 	}   
-
 }
+
+/*
+async function myOpen(classname: string ,membername:string) {
+    const uri = objectScriptApi.getUriForDocument(classname+'.cls');
+    const symbols: vscode.DocumentSymbol[] =  await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
+	// Fallback ranges in case we don't find a symbol
+	const range = new vscode.Range(0, 0, 1, 0);
+	const selectionRange = new vscode.Range(0, 0, 1, 0);
+	if (symbols) {
+		const members=symbols[0].children;
+		if (members) {
+			const symbolInfo = members.find((symbol) => symbol.name === quoteUDLIdentifier(membername, 1));
+            const targetSelectionRange = symbolInfo?.selectionRange ?? selectionRange;
+            const targetRange = symbolInfo?.range ?? range;
+			vscode.window.showTextDocument(uri).then(editor => {
+				// Line added - by having a selection at the same position twice, the cursor jumps there
+				editor.selections = [new vscode.Selection(targetSelectionRange.start,targetSelectionRange.end)]; 
+				// And the visible range jumps there too
+				//var range = new vscode.Range(pos1, pos1);
+				editor.revealRange(targetRange);
+			});
+		}
+	}   
+}
+*/
 
 export function deactivate() {}

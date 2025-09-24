@@ -234,7 +234,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
     membername: string,
   ) {
     return new vscode.CodeLens(this.range(line), {
-      title: "Override",
+     title: "Override",
       command: "pxw-vscode-webpack.openoverride",
       arguments: [classname,membername],
     });
@@ -242,10 +242,11 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
 
   private addOverridden(line: number, uri: vscode.Uri, overCount: number) {
     // peek: editor.action.goToReferences
-    // side bar: references-view.findReferences
+    // side bar: references-view.findReferences  does not allow passing line, it seems to be more linked to right-click
+    // editor.action.showReferences - this peeks references which is not as nice but it works off the button
     return new vscode.CodeLens(this.range(line), {
       title: "Overridden " + overCount + "",
-      command: "references-view.findReferences",
+      command: "editor.action.findReferences",
       arguments: [uri, new vscode.Position(line, 1)],
     });
   }
@@ -253,10 +254,11 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
   private addXref(line: number, uri: vscode.Uri, xrefCount: number) {
     // peek editor.action.goToReferences
     // references-view.findReferences
+    // editor.action.showReferences
     return new vscode.CodeLens(this.range(line), {
       title: "Xref " + xrefCount + "",
-      command: "references-view.findReferences",
-      arguments: [uri, new vscode.Position(line, 1)],
+      command: "editor.action.findReferences",
+      arguments: [uri, new vscode.Position(line, 1),[]],
     });
   }
 
