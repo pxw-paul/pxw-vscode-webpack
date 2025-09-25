@@ -36,7 +36,9 @@ These settings probably will be similar to one of your existing "intersystems.se
 
 ## Known Issues
 
-Its a test.
+Keeps an internal cache of all overrides/overridden members. This is never cleared meaning that it could fill memory and may become out of date as other code changes. 
+
+I have "borrowed" a lot of code from elsewhere, I do not fully understand how it works yet!
 
 ## Release Notes
 
