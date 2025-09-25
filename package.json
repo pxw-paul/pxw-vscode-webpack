@@ -1,9 +1,9 @@
 {
   "name": "pxw-vscode-webpack",
   "displayName": "pxw-vscode-webpack",
-  "description": "Second go",
+  "description": "PXW cross reference tools for vscode",
   "publisher": "pxw-paul",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "engines": {
     "vscode": "^1.104.0"
