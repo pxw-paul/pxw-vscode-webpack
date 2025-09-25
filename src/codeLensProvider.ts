@@ -104,6 +104,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         }
       } else {
         console.log("origins failed to load");
+        console.log(respdata1);
       }
       // Query the server to get all the members that have been overridden by some subclass
       var data2: QueryData = {
@@ -158,6 +159,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         }
       } else {
         console.log("overrides failed to load");
+        console.log(respdata2);
       }
       /// Always save the new map, even if the load failed that ensures we don't try again.
       codeLensMap.set(upperClassName, toriginsMap);
