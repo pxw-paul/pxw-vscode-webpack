@@ -72,13 +72,13 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                 `,
         parameters: new Array(1).fill(className),
       };
-      //const server = await serverForUri(document.uri);
-      const server= await serverForXref();
+      const server = await serverForUri(document.uri);
+      const serverXref= await serverForXref();
       const respdata1 = await makeRESTRequest(
         "POST",
         1,
         "/action/query",
-        server,
+        serverXref,
         data1
       );
       if (
@@ -264,8 +264,18 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
     });
   }
 
-
   private range(line: number): vscode.Range {
     return new vscode.Range(line, 0, line, 80);
+  }
+}
+
+export function codeLensDocumentClosed(document: vscode.TextDocument) {
+  const className=getClassNameFromDocument(document);
+  if (className) {
+    let upperClassName = " " + className.toUpperCase();
+    if (codeLensMap.has(upperClassName)) {
+      codeLensMap.delete(upperClassName);
+      console.log(`Tab closed: `+className);
+    }
   }
 }

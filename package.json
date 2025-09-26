@@ -3,7 +3,7 @@
   "displayName": "pxw-vscode-webpack",
   "description": "PXW cross reference tools for vscode",
   "publisher": "pxw-paul",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "engines": {
     "vscode": "^1.104.0"

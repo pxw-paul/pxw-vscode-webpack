@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { Cache } from './vscodeCache';
-import { ObjectScriptCodeLensProvider } from "./codeLensProvider";
+import { codeLensDocumentClosed, ObjectScriptCodeLensProvider } from "./codeLensProvider";
 import { XrefProvider } from './referenceProvider';
 import { codeLensObject } from './types';
-import { quoteUDLIdentifier } from './functions';
+import { getClassNameFromDocument, quoteUDLIdentifier } from './functions';
 /**
  * Cache for cookies from REST requests to InterSystems servers.
  */
@@ -44,7 +44,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.languages.registerReferenceProvider(
 			{ language: 'objectscript-class' },
 			new XrefProvider()
-		),
+		)
+	);
+	context.subscriptions.push(
+		vscode.workspace.onDidCloseTextDocument(document => 
+		{
+			if (document.languageId==='objectscript-class') {
+				codeLensDocumentClosed(document);
+			}
+		})
 	);
 
 

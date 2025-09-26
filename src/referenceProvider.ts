@@ -69,15 +69,15 @@ export class XrefProvider implements vscode.ReferenceProvider {
         } else {
           console.log("xref for " + className + ":" + memberName);
         }
-
-        const server = await serverForXref();
+        const server = await serverForUri(document.uri);
+        const serverXref = await serverForXref();
 
         // Query the server to get all the members that have been overridden by some subclass
         // this query is not quite right, its not the best way to work out the pxw namespace from the actual namespace
         var data2: QueryData = {
           query: `
               select CalledByKey1,CalledByKey2,LineNumber from pxw_xref.data
-                  where namespace=(select top 1 ID from PXW_DEV_Dictionary.AtelierSettings as ns1 where ns1.Namespace= ?  ) 
+                  where NameSpace=%SQLUPPER(PXW_DEV_Dictionary.ClassDefinitionObject_FindNamespaceFromIRISNameSpace(?))
                   and itemtype='CLS' 
                   and itemkey1=?
                   and itemkey2=?
@@ -88,7 +88,7 @@ export class XrefProvider implements vscode.ReferenceProvider {
           "POST",
           1,
           "/action/query",
-          server,
+          serverXref,
           data2
         );
         if (
