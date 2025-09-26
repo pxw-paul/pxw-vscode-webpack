@@ -78,7 +78,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         "POST",
         1,
         "/action/query",
-        serverXref,
+        server,
         data1
       );
       if (
@@ -122,7 +122,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
         "POST",
         1,
         "/action/query",
-        server,
+        serverXref,
         data2
       );
       if (
