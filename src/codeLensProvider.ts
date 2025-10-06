@@ -170,6 +170,8 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
       const languageServer: boolean =
         vscode.extensions.getExtension(lsExtensionId)?.isActive ?? false;
 
+      const config= vscode.workspace.getConfiguration("pxw.xref");
+
       if (document.languageId === clsLangId) {
         // Loop through the class member symbols
         symbols[0].children.forEach((symbol, idx) => {
@@ -193,7 +195,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
           if (originsMap.has(upperMember)) {
             const origindet = originsMap.get(upperMember);
             if (origindet) {
-              if (origindet.originClassName !== "") {
+              if ((origindet.originClassName !== "") && (config.get("showOverrides")===true)) {
                 result.push(
                   this.addOverride(
                     symbolLine,
@@ -203,7 +205,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                   )
                 );
               }
-              if (origindet.overrideCount !== 0) {
+              if ((origindet.overrideCount !== 0) && (config.get("showOverridden")===true)) {
                 result.push(
                   this.addOverridden(
                     symbolLine,
@@ -212,7 +214,7 @@ export class ObjectScriptCodeLensProvider implements vscode.CodeLensProvider {
                   )
                 );
               }
-              if (origindet.xrefCount !== 0) {
+              if ((origindet.xrefCount !== 0) && (config.get("showXref")===true)) {
                 result.push(
                   this.addXref(
                     symbolLine,

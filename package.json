@@ -3,7 +3,7 @@
   "displayName": "pxw-vscode-webpack",
   "description": "PXW cross reference tools for vscode",
   "publisher": "pxw-paul",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "engines": {
     "vscode": "^1.104.0"
@@ -29,7 +29,7 @@
         "properties":{
           "pxw.xref.connection": {
             "type":"object",
-            "description": "The connection for the Xref tools",
+            "description": "The connection for the Xref tools. This is the server where pxw-dev is installed.",
             "properties": {
               "scheme": {
                 "type":"string",
@@ -56,8 +56,22 @@
                 "description": "Password"
               }
             }
+          },
+          "pxw.xref.showOverrides": {
+            "type":"boolean",
+            "description": "Show the link to a superclass method that has been overridden.",
+            "default":true
+          },
+          "pxw.xref.showOverridden": {
+            "type":"boolean",
+            "description": "Show count of how many times the method has been overridden in subclasses.",
+            "default":true
+          },
+          "pxw.xref.showXref": {
+            "type":"boolean",
+            "description": "Show count of how many times the method has been referenced.",
+            "default":true
           }
-          
         }
       }
     ]
